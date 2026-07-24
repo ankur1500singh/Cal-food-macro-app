@@ -73,7 +73,7 @@ export default function FoodMacroApp() {
       const stream = videoRef.current.srcObject;
       stream?.getTracks().forEach(track => track.stop());
       
-      setScreen('search';
+      setScreen('search');
     }
   };
 
