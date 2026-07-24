@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodMacro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 500px; }
+        .card { background: white; border-radius: 16px; padding: 30px 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: none; }
+        .card.active { display: block; }
+        h1 { font-size: 28px; font-weight: bold; margin-bottom: 10px; color: #1a1a1a; text-align: center; }
+        .subtitle { font-size: 14px; color: #666; text-align: center; margin-bottom: 30px; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-secondary:hover { background: #e0e0e0; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
+        input[type="range"] { margin-bottom: 15px; }
+        .food-item { padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
+        .food-item:hover { background: #f0f0f0; }
+        .food-name { font-weight: bold; color: #1a1a1a; margin-bottom: 5px; }
+        .food-cal { font-size: 12px; color: #999; }
+        .macro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .macro-box { background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center; }
+        .macro-box.carbs { background: #e8f5e9; }
+        .macro-box.fat { background: #fce4ec; }
+        .macro-label { font-size: 12px; color: #666; margin-bottom: 8px; }
+        .macro-value { font-size: 20px; font-weight: bold; color: #f57c00; }
+        .macro-box.carbs .macro-value { color: #2e7d32; }
+        .macro-box.fat .macro-value { color: #c2185b; }
+        .calorie-big { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 15px; }
+        .calorie-big-label { font-size: 13px; opacity: 0.9; }
+        .calorie-big-num { font-size: 32px; font-weight: bold; margin-top: 8px; }
+        .servings-label { font-size: 13px; font-weight: bold; color: #666; margin-bottom: 8px; }
+        .servings-value { color: #667eea; }
+        .button-row { display: flex; gap: 10px; }
+        .button-row button { flex: 1; margin-bottom: 0; }
+        .search-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-row input { flex: 1; margin-bottom: 0; }
+        .search-row button { flex: 0 0 50px; margin-bottom: 0; padding: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="homeScreen" class="card active">
+            <h1>🍔 FoodMacro</h1>
+            <p class="subtitle">Instant calorie & macro tracking</p>
+            <button class="btn-primary" onclick="goSearch()">🔍 Search for food</button>
+        </div>
+
+        <div id="searchScreen" class="card">
+            <h1>Search Food</h1>
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="e.g. chicken, banana, rice...">
+                <button class="btn-primary" onclick="doSearch()">🔍</button>
+            </div>
+            <button class="btn-secondary" onclick="goHome()">Back</button>
+        </div>
+
+        <div id="resultsScreen" class="card">
+            <h1>Select a food</h1>
+            <div id="foodList" style="max-height: 60vh; overflow-y: auto; margin-bottom: 15px;"></div>
+            <button class="btn-secondary" onclick="goSearch()">Back</button>
+        </div>
+
+        <div id="nutritionScreen" class="card">
+            <h1 id="foodTitle">Food</h1>
+            <p class="subtitle">Per serving</p>
+            <div style="margin-bottom: 20px;">
+                <div class="servings-label">Servings: <span class="servings-value" id="servingsDisplay">1</span></div>
+                <input type="range" id="servingsSlider" min="0.25" max="5" step="0.25" value="1" onchange="updateMacros()">
+            </div>
+            <div class="calorie-big">
+                <div class="calorie-big-label">Total Calories</div>
+                <div class="calorie-big-num" id="totalCalories">0</div>
+            </div>
+            <div class="macro-grid">
+                <div class="macro-box">
+                    <div class="macro-label">Protein</div>
+                    <div class="macro-value" id="proteinValue">0g</div>
+                </div>
+                <div class="macro-box carbs">
+                    <div class="macro-label">Carbs</div>
+                    <div class="macro-value" id="carbsValue">0g</div>
+                </div>
+                <div class="macro-box fat">
+                    <div class="macro-label">Fat</div>
+                    <div class="macro-value" id="fatValue">0g</div>
+                </div>
+            </div>
+            <div class="button-row">
+                <button class="btn-secondary" onclick="goSearch()">Search again</button>
+                <button class="btn-primary" onclick="goHome()">Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const foods = {
+            chicken: { name: 'Grilled Chicken (100g)', cal: 165, protein: 31, carbs: 0, fat: 3.6 },
+            banana: { name: 'Banana (medium)', cal: 105, protein: 1.3, carbs: 27, fat: 0.3 },
+            rice: { name: 'White Rice (1 cup)', cal: 206, protein: 4.3, carbs: 45, fat: 0.4 },
+            apple: { name: 'Apple (medium)', cal: 95, protein: 0.5, carbs: 25, fat: 0.3 },
+            egg: { name: 'Egg (boiled)', cal: 78, protein: 6.3, carbs: 0.6, fat: 5.3 },
+            bread: { name: 'White Bread (1 slice)', cal: 80, protein: 2, carbs: 14, fat: 1 },
+            milk: { name: 'Milk (1 cup)', cal: 122, protein: 8.1, carbs: 12, fat: 4.8 },
+            fish: { name: 'Salmon (100g)', cal: 208, protein: 20, carbs: 0, fat: 13 },
+            pizza: { name: 'Pizza Slice', cal: 285, protein: 12, carbs: 36, fat: 10 },
+            pasta: { name: 'Pasta (1 cup)', cal: 221, protein: 8.1, carbs: 43, fat: 1.1 }
+        };
+
+        let selected = null;
+
+        function show(id) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function goHome() { show('homeScreen'); }
+        function goSearch() { show('searchScreen'); document.getElementById('searchInput').value = ''; }
+        
+        function doSearch() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            if (!q) { alert('Enter a food name'); return; }
+            
+            if (foods[q]) {
+                document.getElementById('foodList').innerHTML = `<div class="food-item" onclick="pick('${q}')">${foods[q].name}<br><span style="color:#999">${foods[q].cal} cal</span></div>`;
+                show('resultsScreen');
+            } else {
+                alert('Available: chicken, banana, rice, apple, egg, bread, milk, fish, pizza, pasta');
+            }
+        }
+
+        function pick(key) {
+            selected = foods[key];
+            document.getElementById('foodTitle').textContent = selected.name;
+            document.getElementById('servingsSlider').value = 1;
+            document.getElementById('servingsDisplay').textContent = '1';
+            updateMacros();
+            show('nutritionScreen');
+        }
+
+        function updateMacros() {
+            const s = parseFloat(document.getElementById('servingsSlider').value);
+            document.getElementById('servingsDisplay').textContent = s;
+            document.getElementById('totalCalories').textContent = Math.round(selected.cal * s);
+            document.getElementById('proteinValue').textContent = (Math.round(selected.protein * s * 10) / 10) + 'g';
+            document.getElementById('carbsValue').textContent = (Math.round(selected.carbs * s * 10) / 10) + 'g';
+            document.getElementById('fatValue').textContent = (Math.round(selected.fat * s * 10) / 10) + 'g';
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', e => { if (e.key === 'Enter') doSearch(); });
+    </script>
+</body>
+</html>
